@@ -18,4 +18,5 @@ const ThingSchema = new mongoose.Schema({
 });
 
 const Thing = mongoose.model('Thing', ThingSchema);
+
 module.exports = { Thing };

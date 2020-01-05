@@ -50,13 +50,14 @@ UserSchema.methods.toJSON = function() {
  */
 UserSchema.methods.generateAccessAuthToken = function() {
     const user = this;
-
+    // toHexString -> string return the 24 byte hex string representation.
     return new Promise((resolve, reject) => {
         jwt.sign({ _id: user._id.toHexString() }, jwtSecret, { expiresIn: '15m' }, (error, token) => {
             if (!error) {
                 resolve(token);
+            } else {
+                reject(error);
             }
-            reject(error);
         });
     });
 }
@@ -69,9 +70,10 @@ UserSchema.methods.generateRefreshAuthToken = function() {
         crypto.randomBytes(64, (error, buffer) => {
             if (!error) {
                 let token = buffer.toString('hex');
-                resolve(token);
+                return resolve(token);
+            } else {
+                reject(error);
             }
-            reject(error);
         });
     });
 }
@@ -95,7 +97,7 @@ UserSchema.methods.createSession = function() {
 
 
 /**
- * Static methods
+ * Static methods (MODEL methods)
  * Called on model not an instance of the model
  */
 UserSchema.statics.getJWTSecret = () => {
@@ -118,9 +120,7 @@ UserSchema.statics.findByIdAndToken = function(_id, token) {
  */
 UserSchema.statics.findUserByCredentials = function(email, password) {
     let user = this;
-    return user.findOne({
-        email
-    }, (user) => {
+    return user.findOne({ email }).then((user) => {
         if (!user) {
             return Promise.reject();
         }
@@ -137,7 +137,7 @@ UserSchema.statics.findUserByCredentials = function(email, password) {
 }
 
 /**
- * TODO: Need to add comment
+ * Check if the RefreshToken in DB is expired
  */
 UserSchema.statics.hasRefreshTokenExpired = (expireAt) => {
     let secondsSince = Date.now() / 1000;
@@ -148,7 +148,7 @@ UserSchema.statics.hasRefreshTokenExpired = (expireAt) => {
 }
 
 /**
- * Middleware 
+ * Middleware
  * Before the user document is saved
  */
 UserSchema.pre('save', function(next) {
@@ -173,9 +173,6 @@ UserSchema.pre('save', function(next) {
 /**
  * Save the refresh token to db
  * Is a Helpher Function
- * 
- * @param UserSchema user 
- * @param {*} refreshToken 
  */
 
 let saveSessionToDatabase = (user, refreshToken) => {

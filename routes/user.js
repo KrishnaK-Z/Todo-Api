@@ -71,6 +71,7 @@ router.post('/login', (request, response) => {
 
 /**
  * Generate and returns the access token
+ * Implement the middleware the caller has coorect refresh token
  */
 router.get('/me/access-token', verifySession, (request, response) => {
     request.userObject.generateAccessAuthToken().then(accessToken => {

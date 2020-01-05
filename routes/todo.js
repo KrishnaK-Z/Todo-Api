@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { Todo, Thing } = require('../database/models');
-const mongoose = require('../database/mongoose');
+
 const authenticate = require('../middleware/authenticate');
 
 /**
- * To get all the todos
+ * Get /todo/
+ * To get all the todos respective of user
  * pass data through the JSON request body
  */
 router.get('/', authenticate, (request, response) => {
