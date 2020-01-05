@@ -22,7 +22,15 @@ app.use(express.urlencoded({
 }));
 
 // CORS Middleware applied to for every endpoint to allow the haeders
-app.use(cors({ origin: true }));
+const whitelist = [];
+var corsOptions = {
+  origin: function (origin, callback) {
+    return true;
+  },
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+app.use(cors(corsOptions));
+
 // app.use(function(request, response, next) {
 //     response.header("Access-Control-Allow-Origin", "*");
 //     response.header("Access-Control-Allow-Methods", "GET, POST, HEAD, PUT, OPTIONS, PATCH, DELETE");
